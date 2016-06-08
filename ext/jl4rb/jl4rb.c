@@ -3,18 +3,11 @@
   jl4rb.c
 
 **********************************************************************/
- 
+
 #include "julia.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
-//#define WITH_JULIA_RELEASE
-
-//#ifdef WITH_JULIA_RELEASE
-//#else 
-//#include "julia-api.h"
-//#endif
 
 //-| next macros already exist in ruby and are undefined here
 //#undef T_FLOAT
@@ -28,50 +21,32 @@
 
 VALUE Julia_init(VALUE obj, VALUE args)
 {
-  char **argv,*julia_home_dir;
-  int i,argc;
+  char **argv, *julia_home_dir;
+  int i, argc;
   VALUE tmp;
 
-  argc=RARRAY_LEN(args) + 1;
-  tmp=rb_ary_entry(args,0);
-  julia_home_dir=StringValuePtr(tmp);
-  //printf("First initialization with julia_home_dir=%s\n",julia_home_dir);
-// printf("copy stacks ");
-// #ifdef COPY_STACKS
-//   printf("defined \n");
-// #else
-//   printf("undefined \n");
-// #endif
-// printf("JL_SET_STACK_BASE ");
-// #ifdef JL_SET_STACK_BASE
-//   printf("defined \n");
-// #else
-//   printf("undefined \n");
-// #endif
-//#ifdef WITH_JULIA_RELEASE
-  if(strcmp(julia_home_dir,"")==0) {
+  argc = RARRAY_LEN(args) + 1;
+  tmp = rb_ary_entry(args,0);
+  julia_home_dir = StringValuePtr(tmp);
+
+  if (strcmp(julia_home_dir,"") == 0) {
     jl_init(NULL);
-    JL_SET_STACK_BASE;
   } else {
     jl_init(julia_home_dir);
-    JL_SET_STACK_BASE;
   }
-//#else 
-//  jlapi_init(julia_home_dir,mode);
-//#endif
- 
+
   return Qtrue;
 }
 
 //Maybe try to use cpp stuff to get the output inside julia system (ccall,cgen and cgutils)
-//-| TODO: after adding in the jlapi.c jl_is_<C_type> functions replace the strcmp! 
+//-| TODO: after adding in the jlapi.c jl_is_<C_type> functions replace the strcmp!
 VALUE jl_value_to_VALUE(jl_value_t *res) {
   size_t i=0,k,nd,d;
   VALUE resRb;
   jl_value_t *tmp;
   jl_function_t *call;
-  
-  if(res!=NULL) { //=> get a result
+
+  if (res != NULL) { //=> get a result
     //printf("typeof=%s\n",jl_typeof_str(res));
     if(strcmp(jl_typeof_str(res),"Int64")==0 || strcmp(jl_typeof_str(res),"Int32")==0) 
     //if(jl_is_long(res)) //does not work because of DLLEXPORT
